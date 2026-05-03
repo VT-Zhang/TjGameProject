@@ -97,7 +97,7 @@ public class BlackjackPanel extends JPanel implements ActionListener {
 
     private void onStand() {
         game.stand();
-        revealDealerCard();
+        revealDealerHand();
         queueDealerTurn();
         updateButtons();
         repaint();
@@ -112,7 +112,9 @@ public class BlackjackPanel extends JPanel implements ActionListener {
             enqueueDeal(card, true, true);
         }
 
-        if (movingCard == null) {
+        if (movingCard == null && !dealQueue.isEmpty()) {
+            beginNextAnimation();
+        } else if (movingCard == null) {
             completeDealerTurnIfNeeded();
         } else if (!timer.isRunning()) {
             beginNextAnimation();
@@ -140,9 +142,9 @@ public class BlackjackPanel extends JPanel implements ActionListener {
         return 220 + (double) index * CARD_GAP;
     }
 
-    private void revealDealerCard() {
-        if (dealerCards.size() > 1) {
-            dealerCards.get(1).setFaceUp(true);
+    private void revealDealerHand() {
+        for (AnimatedCard dealerCard : dealerCards) {
+            dealerCard.setFaceUp(true);
         }
     }
 
@@ -208,7 +210,7 @@ public class BlackjackPanel extends JPanel implements ActionListener {
         if (game.getState() == GameState.DEALING) {
             game.finishInitialDeal();
             if (game.getState() == GameState.ROUND_OVER) {
-                revealDealerCard();
+                revealDealerHand();
             }
         } else if (game.getState() == GameState.DEALER_TURN) {
             completeDealerTurnIfNeeded();
